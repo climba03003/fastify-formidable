@@ -56,7 +56,7 @@ describe('integration', function () {
     const json = await response.json()
 
     expect(json.body.foo).toStrictEqual('bar')
-    expect(/\/tmp\/upload_/.test(json.body.file)).toStrictEqual(true)
+    expect(/upload_/.test(json.body.file)).toStrictEqual(true)
     expect(json.files.file).toBeDefined()
     expect(json.files.file.name).toStrictEqual('package.json')
   })
