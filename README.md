@@ -2,7 +2,7 @@
 
 [![Continuous Integration](https://github.com/climba03003/fastify-formidable/actions/workflows/ci.yml/badge.svg)](https://github.com/climba03003/fastify-formidable/actions/workflows/ci.yml)
 [![Package Manager CI](https://github.com/climba03003/fastify-formidable/actions/workflows/package-manager-ci.yml/badge.svg)](https://github.com/climba03003/fastify-formidable/actions/workflows/package-manager-ci.yml)
-[![NPM version](https://img.shields.io/npm/v/@climba03003/fastify-formidable.svg?style=flat)](https://www.npmjs.com/package/@climba03003/fastify-formidable)
+[![NPM version](https://img.shields.io/npm/v/fastify-formidable.svg?style=flat)](https://www.npmjs.com/package/fastify-formidable)
 [![GitHub package.json version](https://img.shields.io/github/package-json/v/climba03003/fastify-formidable)](https://github.com/climba03003/fastify-formidable)
 [![Coverage Status](https://coveralls.io/repos/github/climba03003/fastify-formidable/badge.svg?branch=main)](https://coveralls.io/github/climba03003/fastify-formidable?branch=master)
 [![GitHub](https://img.shields.io/github/license/climba03003/fastify-formidable)](https://github.com/climba03003/fastify-formidable)
