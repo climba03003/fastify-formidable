@@ -1,0 +1,14 @@
+{
+  "files.exclude": {
+    "**/*.d.ts": { "when": "$(basename).ts" },
+    "**/*.js.map": { "when": "$(basename)" },
+    "**/*.js": { "when": "$(basename).ts" },
+    "node_modules": true
+  },
+  "editor.formatOnSave": false,
+  "todo-tree.tree.showCountsInTree": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+}

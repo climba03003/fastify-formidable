@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "lib": ["ES5", "ES6", "ES2016", "ES2017", "ES2018", "ES2019"],
+    "module": "CommonJS",
+    "target": "ES2015",
+    "moduleResolution": "Node",
+
+    "resolveJsonModule": true,
+
+    "removeComments": true,
+    "preserveConstEnums": true,
+
+    "sourceMap": true,
+
+    "declaration": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["lib/**/*", "test/**/*"],
+  "exclude": ["node_modules"]
+}

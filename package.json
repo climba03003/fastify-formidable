@@ -1,0 +1,69 @@
+{
+  "name": "fastify-formidable",
+  "version": "0.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/mjs/index.js",
+      "require": "./lib/index.js"
+    }
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "lint": "eslint --ext .ts lib test",
+    "lint:fix": "npm run lint -- --fix",
+    "build": "rollup -c",
+    "build:tsc": "tsc -b",
+    "unit": "jest",
+    "test": "npm run lint && npm run unit",
+    "coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/climba03003/fastify-formidable"
+  },
+  "author": "KaKa",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@types/formidable": "^1.2.3",
+    "fastify-plugin": "^3.0.0",
+    "formidable": "^1.2.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@types/jest": "^26.0.23",
+    "@types/nodemailer": "^6.4.2",
+    "@typescript-eslint/eslint-plugin": "4",
+    "eslint": "7",
+    "eslint-config-standard-with-typescript": "^20.0.0",
+    "eslint-plugin-import": "2",
+    "eslint-plugin-node": "11",
+    "eslint-plugin-promise": "5",
+    "eslint-plugin-standard": "5",
+    "fastify": "^3.15.1",
+    "fastify-swagger": "^4.8.2",
+    "form-data": "^4.0.0",
+    "husky": "^6.0.0",
+    "jest": "^26.6.3",
+    "prettier": "^2.3.0",
+    "rollup": "^2.47.0",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4",
+    "undici": "^4.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
+  }
+}
