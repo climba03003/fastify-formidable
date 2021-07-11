@@ -1,33 +1,16 @@
-import Fastify, { FastifyInstance } from 'fastify'
 import * as fs from 'fs'
 import { AddressInfo } from 'net'
 import * as path from 'path'
-import FastifyFormidable from '../lib'
+import { createFastify } from './createFastify'
 import { request } from './request'
 import FormData = require('form-data')
 
 const filePath = path.join(__dirname, '../package.json')
 
 describe('addHooks', function () {
-  let fastify: FastifyInstance
-
-  beforeEach(async function () {
-    fastify = Fastify()
-    await fastify.register(FastifyFormidable, {
-      addHooks: true
-    })
-
-    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
-      return await reply.code(200).send({
-        body: request.body,
-        files: request.files
-      })
-    })
-
-    await fastify.listen(0)
-  })
-
   test('single file', async function () {
+    const fastify = await createFastify({ addHooks: true })
+
     const form = new FormData()
     form.append('foo', 'bar')
     form.append('file', fs.createReadStream(filePath))
@@ -42,9 +25,30 @@ describe('addHooks', function () {
     expect(/upload_/.test(json.body.file)).toStrictEqual(true)
     expect(json.files.file).toBeDefined()
     expect(json.files.file.name).toStrictEqual('package.json')
+
+    await fastify.close()
   })
 
-  afterEach(async function () {
+  test('multiple files', async function () {
+    const fastify = await createFastify({ addHooks: true, formidable: { multiples: true } })
+
+    const form = new FormData()
+    form.append('foo', 'bar')
+    form.append('file', fs.createReadStream(filePath))
+    form.append('file', fs.createReadStream(filePath))
+
+    const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
+
+    expect(response.status).toStrictEqual(200)
+
+    const json = await response.json()
+
+    expect(json.body.foo).toStrictEqual('bar')
+    expect(Array.isArray(json.body.file)).toStrictEqual(true)
+    expect(json.files.file).toBeDefined()
+    expect(json.files.file[0].name).toStrictEqual('package.json')
+    expect(json.files.file[1].name).toStrictEqual('package.json')
+
     await fastify.close()
   })
 })
