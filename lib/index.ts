@@ -2,6 +2,8 @@ import { Ajv } from 'ajv'
 import { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import FastifyPlugin from 'fastify-plugin'
 import { Fields, File, Files, IncomingForm, Options } from 'formidable'
+import Formidable from 'formidable/Formidable'
+import { IncomingMessage } from 'http'
 const kIsMultipart = Symbol.for('[isMultipart]')
 
 declare module 'fastify' {
@@ -17,6 +19,37 @@ export interface FastifyFormidableOptions {
   addHooks?: boolean
   removeFilesFromBody?: boolean
   formidable?: Options
+}
+
+function promisify (func: Function): (request: IncomingMessage) => Promise<{ fields: Fields, files: Files }> {
+  return async function (request: IncomingMessage): Promise<{ fields: Fields, files: Files }> {
+    return await new Promise(function (resolve, reject) {
+      func(request, function (err: any, fields: Fields, files: Files) {
+        if (err as true) reject(err)
+        resolve({ fields, files })
+      })
+    })
+  }
+}
+
+function buildRequestParser (formidable: Formidable): (request: FastifyRequest, options?: Pick<FastifyFormidableOptions, 'removeFilesFromBody'>) => Promise<{ body: Fields, files: Files }> {
+  const parse = promisify(formidable.parse.bind(formidable))
+  return async function (request: FastifyRequest, options?: Pick<FastifyFormidableOptions, 'removeFilesFromBody'>): Promise<{ body: Fields, files: Files }> {
+    const { fields, files } = await parse(request.raw)
+
+    const body = Object.assign({}, fields)
+    if (options?.removeFilesFromBody !== true) {
+      Object.keys(files).forEach(function (key) {
+        (body as any)[key] = Array.isArray(files[key])
+          ? (files[key] as File[]).map(function (file) {
+              return file.path
+            })
+          : (files[key] as File).path
+      })
+    }
+
+    return { body, files }
+  }
 }
 
 const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fastify, options) {
@@ -35,25 +68,12 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
       requestFormidable = new IncomingForm(decoratorOptions)
     }
 
-    return await new Promise(function (resolve, reject) {
-      // skip if it is not multipart
-      if (!request[kIsMultipart]) return reject(new Error('Cannot handle non-multipart request'))
-      requestFormidable.parse(request.raw, function (err, fields, files) {
-        if (err as true) reject(err)
-        request.body = Object.assign({}, fields)
-        if (options.removeFilesFromBody !== true) {
-          Object.keys(files).forEach(function (key) {
-            (request.body as any)[key] = Array.isArray(files[key])
-              ? (files[key] as File[]).map(function (file) {
-                  return file.path
-                })
-              : (files[key] as File).path
-          })
-        }
-        request.files = files
-        resolve(request.body)
-      })
-    })
+    const parser = buildRequestParser(requestFormidable)
+    const { body, files } = await parser(request, { removeFilesFromBody: options.removeFilesFromBody })
+    request.body = body
+    request.files = files
+
+    return body
   })
 
   if (options.addContentTypeParser === true && options.addHooks === true) {
@@ -61,21 +81,12 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
   }
 
   if (options.addContentTypeParser === true) {
-    fastify.addContentTypeParser('multipart', function (request, _, done) {
+    fastify.addContentTypeParser('multipart', async function (request: FastifyRequest) {
       request[kIsMultipart] = true
-      formidable.parse(request.raw, function (err, fields, files) {
-        if (err as true) done(err)
-        const body = Object.assign({}, fields)
-        Object.keys(files).forEach(function (key) {
-          (body as any)[key] = Array.isArray(files[key])
-            ? (files[key] as File[]).map(function (file) {
-                return file.path
-              })
-            : (files[key] as File).path
-        })
-        request.files = files
-        done(null, body)
-      })
+      const parse = buildRequestParser(formidable)
+      const { body, files } = await parse(request)
+      request.files = files
+      return body
     })
   } else {
     fastify.addContentTypeParser('multipart', function (request, _, done) {
@@ -85,23 +96,13 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
   }
 
   if (options.addHooks === true) {
-    fastify.addHook('preValidation', function (request, reply, done) {
+    fastify.addHook('preValidation', async function (request: FastifyRequest) {
       // skip if it is not multipart
-      if (!request[kIsMultipart]) return done()
-
-      formidable.parse(request.raw, function (err, fields, files) {
-        if (err as true) done(err)
-        request.body = Object.assign({}, fields)
-        Object.keys(files).forEach(function (key) {
-          (request.body as any)[key] = Array.isArray(files[key])
-            ? (files[key] as File[]).map(function (file) {
-                return file.path
-              })
-            : (files[key] as File).path
-        })
-        request.files = files
-        done()
-      })
+      if (!request[kIsMultipart]) return
+      const parse = buildRequestParser(formidable)
+      const { body, files } = await parse(request)
+      request.body = body
+      request.files = files
     })
   }
 
