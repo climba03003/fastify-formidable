@@ -64,6 +64,18 @@ fastify.register(FastifyFormidable, {
 
 See: [`formidable`](https://github.com/node-formidable/formidable#options)
 
+#### options.removeFilesFromBody
+
+This options will add a `preHandler` hooks to remove files from body.
+
+```ts
+import FastifyFormidable from 'fastify-formidable'
+
+fastify.register(FastifyFormidable, {
+  removeFilesFromBody: true
+})
+```
+
 ### Integration
 
 It is a known limitation for `fastify-multipart` integrate with `fastify-swagger` and this plugin provide a relatively simple solution for the integration.

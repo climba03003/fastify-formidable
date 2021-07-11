@@ -8,7 +8,7 @@ import FormData = require('form-data')
 
 const filePath = path.join(__dirname, '../package.json')
 
-describe('addContentTypeParser', function () {
+describe('addHooks', function () {
   let fastify: FastifyInstance
 
   beforeEach(async function () {

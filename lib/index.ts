@@ -15,6 +15,7 @@ declare module 'fastify' {
 export interface FastifyFormidableOptions {
   addContentTypeParser?: boolean
   addHooks?: boolean
+  removeFilesFromBody?: boolean
   formidable?: Options
 }
 
@@ -24,14 +25,14 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
   fastify.decorateRequest(kIsMultipart, false)
   fastify.decorateRequest('files', null)
 
-  fastify.decorateRequest('parseMultipart', async function (this: FastifyRequest, options?: Options) {
+  fastify.decorateRequest('parseMultipart', async function (this: FastifyRequest, decoratorOptions?: Options) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const request = this
 
     let requestFormidable = formidable
 
-    if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
-      requestFormidable = new IncomingForm(options)
+    if (typeof decoratorOptions === 'object' && decoratorOptions !== null && !Array.isArray(decoratorOptions)) {
+      requestFormidable = new IncomingForm(decoratorOptions)
     }
 
     return await new Promise(function (resolve, reject) {
@@ -40,13 +41,15 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
       requestFormidable.parse(request.raw, function (err, fields, files) {
         if (err as true) reject(err)
         request.body = Object.assign({}, fields)
-        Object.keys(files).forEach(function (key) {
-          (request.body as any)[key] = Array.isArray(files[key])
-            ? (files[key] as File[]).map(function (file) {
-                return file.path
-              })
-            : (files[key] as File).path
-        })
+        if (options.removeFilesFromBody !== true) {
+          Object.keys(files).forEach(function (key) {
+            (request.body as any)[key] = Array.isArray(files[key])
+              ? (files[key] as File[]).map(function (file) {
+                  return file.path
+                })
+              : (files[key] as File).path
+          })
+        }
         request.files = files
         resolve(request.body)
       })
@@ -99,6 +102,20 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
         request.files = files
         done()
       })
+    })
+  }
+
+  if (options.removeFilesFromBody === true && (options.addHooks === true || options.addContentTypeParser === true)) {
+    // we only remove after validation
+    fastify.addHook('preHandler', function (request, reply, done) {
+      if (request.files !== null) {
+        const keys = Object.keys(request.files)
+        keys.forEach(function (key) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete (request.body as any)[key]
+        })
+      }
+      done()
     })
   }
 }
