@@ -50,7 +50,6 @@ describe('integration', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    console.log(response.body)
     expect(response.status).toStrictEqual(200)
 
     const json = await response.json()
