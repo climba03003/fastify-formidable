@@ -3,8 +3,11 @@ import fastifySwagger from 'fastify-swagger'
 import { Options } from 'formidable'
 import FastifyFormidable, { ajvBinaryFormat, FastifyFormidableOptions } from '../lib'
 
+// reduce keep alive to prevent `undici` keep the socket open
+export const fastifyOptions = { keepAliveTimeout: 100 }
+
 export async function createFastify (options: FastifyFormidableOptions, inline: boolean | Options = false): Promise<FastifyInstance> {
-  const fastify = Fastify()
+  const fastify = Fastify(fastifyOptions)
 
   await fastify.register(FastifyFormidable, options)
 
@@ -24,6 +27,7 @@ export async function createFastify (options: FastifyFormidableOptions, inline: 
 
 export async function createIntegrationFastify (options: FastifyFormidableOptions, schema: any, inline: boolean = false): Promise<FastifyInstance> {
   const fastify = Fastify({
+    ...fastifyOptions,
     ajv: {
       plugins: [ajvBinaryFormat]
     }

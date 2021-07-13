@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import { AddressInfo } from 'net'
 import * as path from 'path'
 import FastifyFormidable from '../lib'
+import { fastifyOptions } from './createFastify'
 import { request } from './request'
 import FormData = require('form-data')
 
@@ -12,7 +13,7 @@ describe('removeFilesFromBody', function () {
   let fastify: FastifyInstance
 
   test('with addContentTypeParser', async function () {
-    fastify = Fastify()
+    fastify = Fastify(fastifyOptions)
     await fastify.register(FastifyFormidable, {
       addContentTypeParser: true,
       removeFilesFromBody: true
@@ -44,7 +45,7 @@ describe('removeFilesFromBody', function () {
   })
 
   test('with addHooks', async function () {
-    fastify = Fastify()
+    fastify = Fastify(fastifyOptions)
     await fastify.register(FastifyFormidable, {
       addHooks: true,
       removeFilesFromBody: true
@@ -76,7 +77,7 @@ describe('removeFilesFromBody', function () {
   })
 
   test('with parseMultipart', async function () {
-    fastify = Fastify()
+    fastify = Fastify(fastifyOptions)
     await fastify.register(FastifyFormidable, {
       removeFilesFromBody: true
     })
