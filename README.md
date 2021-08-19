@@ -9,8 +9,6 @@
 
 This plugin add a handy parser for `multipart/form-data` by using `formidable` and provide a better integration between `multipart/form-data` and `fastify-swagger`
 
-> Disclaimer: This plugin will work just fine for handling `multipart/form-data` and during the pre-release period (version under `1.0.0`) the API may changes a lot. Use it as your own risk for production before a stable version. I can only promises I will not change the API when it is not needed.
-
 ## Install
 ```
 npm install fastify-formidable --save
