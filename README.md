@@ -59,7 +59,9 @@ import FastifyFormidable from 'fastify-formidable'
 
 fastify.register(FastifyFormidable, {
   formidable: {
-    maxFileSize: 1000 
+    maxFileSize: 1000,
+    // this folder will be automatic created by this plugin
+    uploadDir: '/'
   }
 })
 ```

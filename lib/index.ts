@@ -3,14 +3,19 @@ import { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import FastifyPlugin from 'fastify-plugin'
 import { Fields, File, Files, IncomingForm, Options } from 'formidable'
 import Formidable from 'formidable/Formidable'
+import * as fs from 'fs'
 import { IncomingMessage } from 'http'
-const kIsMultipart = Symbol.for('[isMultipart]')
+export const kIsMultipart = Symbol.for('[FastifyMultipart.isMultipart]')
+export const kIsMultipartParsed = Symbol.for('[FastifyMultipart.isMultipartParsed]')
+export const kFileSavedPaths = Symbol.for('[FastifyMultipart.fileSavedPaths]')
 
 declare module 'fastify' {
   interface FastifyRequest {
     files: Files | null
     parseMultipart: <Payload = Fields>(this: FastifyRequest, options?: Options) => Promise<Payload>
     [kIsMultipart]: boolean
+    [kIsMultipartParsed]: boolean
+    [kFileSavedPaths]: string[]
   }
 }
 
@@ -35,27 +40,40 @@ function promisify (func: Function): (request: IncomingMessage) => Promise<{ fie
 function buildRequestParser (formidable: Formidable): (request: FastifyRequest, options?: Pick<FastifyFormidableOptions, 'removeFilesFromBody'>) => Promise<{ body: Fields, files: Files }> {
   const parse = promisify(formidable.parse.bind(formidable))
   return async function (request: FastifyRequest, options?: Pick<FastifyFormidableOptions, 'removeFilesFromBody'>): Promise<{ body: Fields, files: Files }> {
+    if (request[kIsMultipartParsed]) {
+      request.log.warn('multipart already parsed, you probably need to check your code why it is parsed twice.')
+      return { body: request.body as Fields, files: request.files as Files }
+    }
     const { fields, files } = await parse(request.raw)
+    request[kFileSavedPaths] = []
 
     const body = Object.assign({}, fields)
-    if (options?.removeFilesFromBody !== true) {
-      Object.keys(files).forEach(function (key) {
-        (body as any)[key] = Array.isArray(files[key])
-          ? (files[key] as File[]).map(function (file) {
-              return file.path
-            })
-          : (files[key] as File).path
-      })
-    }
+    Object.keys(files).forEach(function (key) {
+      const paths = Array.isArray(files[key])
+        ? (files[key] as File[]).map(function (file) {
+            return file.path
+          })
+        : (files[key] as File).path
+      if (options?.removeFilesFromBody !== true) (body as any)[key] = paths
+      request[kFileSavedPaths].push(...paths)
+    })
 
+    request[kIsMultipartParsed] = true
     return { body, files }
   }
 }
 
 const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fastify, options) {
+  // create upload folder when not exist
+  if (typeof options.formidable?.uploadDir === 'string') {
+    await fs.promises.mkdir(options.formidable.uploadDir, { recursive: true })
+  }
+
   const formidable = new IncomingForm(options.formidable)
 
   fastify.decorateRequest(kIsMultipart, false)
+  fastify.decorateRequest(kIsMultipartParsed, false)
+  fastify.decorateRequest(kFileSavedPaths, null)
   fastify.decorateRequest('files', null)
 
   fastify.decorateRequest('parseMultipart', async function (this: FastifyRequest, decoratorOptions?: Options) {
