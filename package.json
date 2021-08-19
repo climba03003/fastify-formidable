@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.1",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "4",
     "eslint": "7",
     "eslint-config-standard-with-typescript": "^20.0.0",
