@@ -21,7 +21,7 @@ yarn add fastify-formidable
 ## Usage
 
 ```ts
-import FastifyFormidable from 'fastify-formidable'
+import FastifyFormidable, { kFileSavedPaths, kFileSavedPaths, kIsMultipartParsed } from 'fastify-formidable'
 
 fastify.register(FastifyFormidable)
 
@@ -35,6 +35,15 @@ fastify.post('/', async function(request, reply) {
   // access body
   // note that file fields will exist in body and it will becomes the file path saved on disk
   request.body
+
+  // access all the files path
+  request[kFileSavedPaths]
+
+  // check if it is multipart
+  if( request[kIsMultipart] === true ) {}
+
+  // check if it is already parsed
+  if ( request[kIsMultipartParsed] === true ) {}
 })
 
 // add content type parser which will automatic parse all `multipart/form-data` found
