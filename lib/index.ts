@@ -1,4 +1,3 @@
-import { Ajv } from 'ajv'
 import { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import FastifyPlugin from 'fastify-plugin'
 import { Fields, File, Files, IncomingForm, Options } from 'formidable'
@@ -139,7 +138,8 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
   }
 }
 
-export const ajvBinaryFormat = function (ajv: Ajv): void {
+// we treat ajv to any because we do not want to deal with the ajv@6 and ajv@8 typing problem
+export const ajvBinaryFormat = function (ajv: any): void {
   ajv.addFormat('binary', {
     type: 'string',
     validate (o: unknown) {
