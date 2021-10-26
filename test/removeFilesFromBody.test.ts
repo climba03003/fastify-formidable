@@ -1,7 +1,8 @@
-import Fastify, { FastifyInstance } from 'fastify'
+import Fastify from 'fastify'
 import * as fs from 'fs'
 import { AddressInfo } from 'net'
 import * as path from 'path'
+import t from 'tap'
 import FastifyFormidable from '../lib'
 import { fastifyOptions } from './createFastify'
 import { request } from './request'
@@ -9,11 +10,17 @@ import FormData = require('form-data')
 
 const filePath = path.join(__dirname, '../package.json')
 
-describe('removeFilesFromBody', function () {
-  let fastify: FastifyInstance
+t.plan(1)
+t.test('removeFilesFromBody', function (t) {
+  t.plan(4)
 
-  test('with addContentTypeParser', async function () {
-    fastify = Fastify(fastifyOptions)
+  t.test('with addContentTypeParser', async function (t) {
+    t.plan(5)
+
+    const fastify = Fastify(fastifyOptions)
+
+    t.teardown(fastify.close)
+
     await fastify.register(FastifyFormidable, {
       addContentTypeParser: true,
       removeFilesFromBody: true
@@ -34,18 +41,23 @@ describe('removeFilesFromBody', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(json.body.file).toBeUndefined()
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file.name).toStrictEqual('package.json')
+    t.equal(json.body.foo, 'bar')
+    t.notOk(json.body.file)
+    t.ok(json.files.file)
+    t.equal(json.files.file.name, 'package.json')
   })
 
-  test('with addHooks', async function () {
-    fastify = Fastify(fastifyOptions)
+  t.test('with addHooks', async function (t) {
+    t.plan(5)
+
+    const fastify = Fastify(fastifyOptions)
+
+    t.teardown(fastify.close)
+
     await fastify.register(FastifyFormidable, {
       addHooks: true,
       removeFilesFromBody: true
@@ -66,18 +78,23 @@ describe('removeFilesFromBody', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(json.body.file).toBeUndefined()
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file.name).toStrictEqual('package.json')
+    t.equal(json.body.foo, 'bar')
+    t.notOk(json.body.file)
+    t.ok(json.files.file)
+    t.equal(json.files.file.name, 'package.json')
   })
 
-  test('with parseMultipart', async function () {
-    fastify = Fastify(fastifyOptions)
+  t.test('with parseMultipart', async function (t) {
+    t.plan(5)
+
+    const fastify = Fastify(fastifyOptions)
+
+    t.teardown(fastify.close)
+
     await fastify.register(FastifyFormidable, {
       removeFilesFromBody: true
     })
@@ -98,17 +115,48 @@ describe('removeFilesFromBody', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(json.body.file).toBeUndefined()
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file.name).toStrictEqual('package.json')
+    t.equal(json.body.foo, 'bar')
+    t.notOk(json.body.file)
+    t.ok(json.files.file)
+    t.equal(json.files.file.name, 'package.json')
   })
 
-  afterEach(async function () {
-    await fastify.close()
+  t.test('no file', async function (t) {
+    t.plan(4)
+
+    const fastify = Fastify(fastifyOptions)
+
+    t.teardown(fastify.close)
+
+    await fastify.register(FastifyFormidable, {
+      addContentTypeParser: true,
+      removeFilesFromBody: true
+    })
+
+    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+      return await reply.code(200).send({
+        body: request.body,
+        files: request.files
+      })
+    })
+
+    await fastify.listen(0)
+
+    const form = new FormData()
+    form.append('foo', 'bar')
+
+    const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
+
+    t.equal(response.status, 200)
+
+    const json = await response.json()
+
+    t.equal(json.body.foo, 'bar')
+    t.notOk(json.body.file)
+    t.notOk(json.files.file)
   })
 })

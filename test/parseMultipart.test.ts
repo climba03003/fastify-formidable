@@ -1,15 +1,21 @@
 import * as fs from 'fs'
 import { AddressInfo } from 'net'
 import * as path from 'path'
+import t from 'tap'
 import { createFastify } from './createFastify'
 import { request } from './request'
 import FormData = require('form-data')
 
 const filePath = path.join(__dirname, '../package.json')
 
-describe('parseMultipart', function () {
-  test('single file', async function () {
-    const fastify = await createFastify({ }, true)
+t.plan(1)
+t.test('parseMultipart', function (t) {
+  t.plan(4)
+
+  t.test('single file', async function (t) {
+    t.plan(5)
+
+    const fastify = await createFastify(t, { }, true)
 
     const form = new FormData()
     form.append('foo', 'bar')
@@ -17,20 +23,20 @@ describe('parseMultipart', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(/upload_/.test(json.body.file)).toStrictEqual(true)
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file.name).toStrictEqual('package.json')
-
-    await fastify.close()
+    t.equal(json.body.foo, 'bar')
+    t.equal(/upload_/.test(json.body.file), true)
+    t.ok(json.files.file)
+    t.equal(json.files.file.name, 'package.json')
   })
 
-  test('multiple files', async function () {
-    const fastify = await createFastify({ formidable: { multiples: true } }, true)
+  t.test('multiple files', async function (t) {
+    t.plan(6)
+
+    const fastify = await createFastify(t, { formidable: { multiples: true } }, true)
 
     const form = new FormData()
     form.append('foo', 'bar')
@@ -39,21 +45,21 @@ describe('parseMultipart', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(Array.isArray(json.body.file)).toStrictEqual(true)
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file[0].name).toStrictEqual('package.json')
-    expect(json.files.file[1].name).toStrictEqual('package.json')
-
-    await fastify.close()
+    t.equal(json.body.foo, 'bar')
+    t.equal(Array.isArray(json.body.file), true)
+    t.ok(json.files.file)
+    t.equal(json.files.file[0].name, 'package.json')
+    t.equal(json.files.file[1].name, 'package.json')
   })
 
-  test('options - single file', async function () {
-    const fastify = await createFastify({ }, {})
+  t.test('options - single file', async function (t) {
+    t.plan(5)
+
+    const fastify = await createFastify(t, { }, {})
 
     const form = new FormData()
     form.append('foo', 'bar')
@@ -61,20 +67,20 @@ describe('parseMultipart', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(/upload_/.test(json.body.file)).toStrictEqual(true)
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file.name).toStrictEqual('package.json')
-
-    await fastify.close()
+    t.equal(json.body.foo, 'bar')
+    t.equal(/upload_/.test(json.body.file), true)
+    t.ok(json.files.file)
+    t.equal(json.files.file.name, 'package.json')
   })
 
-  test('options - multiple files', async function () {
-    const fastify = await createFastify({ }, { multiples: true })
+  t.test('options - multiple files', async function (t) {
+    t.plan(6)
+
+    const fastify = await createFastify(t, { }, { multiples: true })
 
     const form = new FormData()
     form.append('foo', 'bar')
@@ -83,16 +89,14 @@ describe('parseMultipart', function () {
 
     const response = await request(`http://localhost:${(fastify.server.address() as AddressInfo).port}`, form)
 
-    expect(response.status).toStrictEqual(200)
+    t.equal(response.status, 200)
 
     const json = await response.json()
 
-    expect(json.body.foo).toStrictEqual('bar')
-    expect(Array.isArray(json.body.file)).toStrictEqual(true)
-    expect(json.files.file).toBeDefined()
-    expect(json.files.file[0].name).toStrictEqual('package.json')
-    expect(json.files.file[1].name).toStrictEqual('package.json')
-
-    await fastify.close()
+    t.equal(json.body.foo, 'bar')
+    t.equal(Array.isArray(json.body.file), true)
+    t.ok(json.files.file)
+    t.equal(json.files.file[0].name, 'package.json')
+    t.equal(json.files.file[1].name, 'package.json')
   })
 })
