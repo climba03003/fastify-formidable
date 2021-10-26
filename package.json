@@ -14,13 +14,14 @@
     "lib": "lib"
   },
   "scripts": {
+    "clean": "npx rimraf \"lib/**/*.js\" \"lib/**/*.map\" \"lib/**/*.d.ts\" \"test/**/*.js\" \"test/**/*.map\" \"test/**/*.d.ts\"",
     "lint": "eslint --ext .ts lib test",
     "lint:fix": "npm run lint -- --fix",
     "build": "rollup -c",
     "build:tsc": "tsc -b",
-    "unit": "jest",
+    "unit": "tap",
     "test": "npm run lint && npm run unit",
-    "coverage": "jest --coverage",
+    "coverage": "tap --coverage --coverage-report=lcovonly",
     "prepublishOnly": "npm run build"
   },
   "publishConfig": {
@@ -40,29 +41,21 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.1",
-    "@types/jest": "^27.0.1",
-    "@typescript-eslint/eslint-plugin": "4",
-    "eslint": "7",
-    "eslint-config-standard-with-typescript": "^20.0.0",
-    "eslint-plugin-import": "2",
-    "eslint-plugin-node": "11",
-    "eslint-plugin-promise": "5",
-    "eslint-plugin-standard": "5",
+    "@types/tap": "^15.0.5",
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "eslint": "^7.12.1",
+    "eslint-config-standard-with-typescript": "^21.0.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.0.0",
     "fastify": "^3.19.0",
     "fastify-swagger": "^4.8.2",
     "form-data": "^4.0.0",
-    "husky": "^7.0.1",
-    "jest": "^27.0.6",
     "prettier": "^2.3.2",
     "rollup": "^2.53.1",
-    "ts-jest": "^27.0.3",
+    "tap": "^15.0.10",
+    "ts-node": "^10.4.0",
     "typescript": "^4.3.5",
     "undici": "^4.1.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test",
-      "pre-push": "npm test"
-    }
   }
 }

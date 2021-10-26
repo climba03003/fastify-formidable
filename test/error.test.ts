@@ -1,14 +1,20 @@
+import t from 'tap'
 import { createFastify } from './createFastify'
 
-describe('error', function () {
-  test('`addContentTypeParser` and `addHooks`', async function () {
+t.plan(1)
+t.test('error', function (t) {
+  t.plan(1)
+
+  t.test('`addContentTypeParser` and `addHooks`', async function (t) {
+    t.plan(2)
+
     try {
-      await createFastify({ addHooks: true, addContentTypeParser: true })
+      await createFastify(t, { addHooks: true, addContentTypeParser: true })
       // should not get here
-      expect(true).toStrictEqual(false)
-    } catch (err) {
-      expect(err).toBeDefined()
-      expect(err.message).toStrictEqual('Cannot enable `addContentTypeParser` togather with `addHooks`')
+      t.fail()
+    } catch (err: any) {
+      t.ok(err)
+      t.equal(err.message, 'Cannot enable `addContentTypeParser` togather with `addHooks`')
     }
   })
 })

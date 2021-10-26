@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - main
 
 jobs:
   pnpm:
@@ -12,14 +13,14 @@ jobs:
     strategy:
       matrix:
         # Maintenance and active LTS
-        node-version: [12, 14, 16]
+        node-version: [10, 12, 14, 16]
         os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Use Node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         id: setup_node
         with:
           node-version: ${{ matrix.node-version }}
@@ -39,7 +40,7 @@ jobs:
     strategy:
       matrix:
         # Maintenance and active LTS
-        node-version: [12, 14, 16]
+        node-version: [10, 12, 14, 16]
         os: [ubuntu-latest]
 
     steps:
@@ -47,7 +48,7 @@ jobs:
 
       - name: Use Node.js
         id: setup_node
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         with:
           node-version: ${{ matrix.node-version }}
 

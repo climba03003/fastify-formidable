@@ -30,6 +30,8 @@ function promisify (func: Function): (request: IncomingMessage) => Promise<{ fie
   return async function (request: IncomingMessage): Promise<{ fields: Fields, files: Files }> {
     return await new Promise(function (resolve, reject) {
       func(request, function (err: any, fields: Fields, files: Files) {
+        // it is treated as safe guard only
+        /* istanbul ignore next */
         if (err as true) reject(err)
         resolve({ fields, files })
       })
