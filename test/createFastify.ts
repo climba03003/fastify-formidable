@@ -6,7 +6,7 @@ import FastifyFormidable, { ajvBinaryFormat, FastifyFormidableOptions } from '..
 // reduce keep alive to prevent `undici` keep the socket open
 export const fastifyOptions = { keepAliveTimeout: 100 }
 
-export async function createFastify (options: FastifyFormidableOptions, inline: boolean | Options = false): Promise<FastifyInstance> {
+export async function createFastify (t: Tap.Test, options: FastifyFormidableOptions, inline: boolean | Options = false): Promise<FastifyInstance> {
   const fastify = Fastify(fastifyOptions)
 
   await fastify.register(FastifyFormidable, options)
@@ -22,10 +22,12 @@ export async function createFastify (options: FastifyFormidableOptions, inline: 
 
   await fastify.listen(0)
 
+  t.teardown(fastify.close)
+
   return await fastify
 }
 
-export async function createIntegrationFastify (options: FastifyFormidableOptions, schema: any, inline: boolean = false): Promise<FastifyInstance> {
+export async function createIntegrationFastify (t: Tap.Test, options: FastifyFormidableOptions, schema: any, inline: boolean = false): Promise<FastifyInstance> {
   const fastify = Fastify({
     ...fastifyOptions,
     ajv: {
@@ -47,6 +49,8 @@ export async function createIntegrationFastify (options: FastifyFormidableOption
   })
 
   await fastify.listen(0)
+
+  t.teardown(fastify.close)
 
   return await fastify
 }

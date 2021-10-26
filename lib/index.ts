@@ -69,7 +69,7 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
     await fs.promises.mkdir(options.formidable.uploadDir, { recursive: true })
   }
 
-  const formidable = new IncomingForm(options.formidable)
+  const formidable = options.formidable instanceof IncomingForm ? options.formidable : new IncomingForm(options.formidable)
 
   fastify.decorateRequest(kIsMultipart, false)
   fastify.decorateRequest(kIsMultipartParsed, false)

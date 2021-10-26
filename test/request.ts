@@ -34,3 +34,23 @@ export async function request (url: string, formData: FormData): Promise<{ statu
     }
   }
 }
+
+export async function requestJSON (url: string, json: any): Promise<{ status: number, body: string, json: () => any }> {
+  const response = await undici.request(url, {
+    method: 'POST',
+    body: JSON.stringify(json),
+    headers: {
+      'content-type': 'application/json'
+    }
+  })
+
+  const responseBody = await resolve(response.body)
+
+  return {
+    status: response.statusCode,
+    body: responseBody,
+    json () {
+      return JSON.parse(responseBody)
+    }
+  }
+}

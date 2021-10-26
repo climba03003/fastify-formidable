@@ -1,12 +1,18 @@
 import Fastify from 'fastify'
 import * as fs from 'fs'
 import * as path from 'path'
+import t from 'tap'
 import FastifyFormidable from '../lib'
 
 const uploadDir = path.resolve('tmp')
 
-describe('uploadDir', function () {
-  test('create', async function () {
+t.plan(1)
+t.test('uploadDir', function (t) {
+  t.plan(1)
+
+  t.test('create', async function (t) {
+    t.plan(1)
+
     const fastify = Fastify()
     await fastify.register(FastifyFormidable, {
       formidable: {
@@ -15,11 +21,11 @@ describe('uploadDir', function () {
     })
 
     const stat = await fs.promises.lstat(uploadDir)
-    expect(stat.isDirectory()).toStrictEqual(true)
-  })
+    t.equal(stat.isDirectory(), true)
 
-  afterEach(async function () {
+    t.teardown(async function () {
     // clean up
-    await fs.promises.rmdir(uploadDir)
+      await fs.promises.rmdir(uploadDir)
+    })
   })
 })
