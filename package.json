@@ -37,7 +37,7 @@
   "dependencies": {
     "@types/formidable": "^1.2.3",
     "fastify-plugin": "^3.0.0",
-    "formidable": "^1.2.2"
+    "formidable": "^3.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.1",
