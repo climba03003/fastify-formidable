@@ -55,13 +55,13 @@ jobs:
       - name: Coveralls Parallel
         id: coveralls-parallel
         continue-on-error: true
-        uses: coverallsapp/github-action@1
+        uses: coverallsapp/github-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
           flag-name: run-${{ matrix.node-version }}-${{ matrix.os }}
 
-      - name: Should Trigger coverallsapp/github-action@1
+      - name: Should Trigger coverallsapp/github-action@v1
         id: coveralls-trigger
         # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#steps-context
         # when continue-on-error failed, outcome is failure and conclusion is success
@@ -75,7 +75,7 @@ jobs:
     if: needs.test.outputs.COVERALLS != 'failure'
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@1
+        uses: coverallsapp/github-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
