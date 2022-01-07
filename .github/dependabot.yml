@@ -1,12 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: '/'
+    directory: "/"
+    ignore:
+      - dependency-name: "actions/*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: "coverallsapp/*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: "fastify/*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
     schedule:
       interval: daily
     open-pull-requests-limit: 10
   - package-ecosystem: npm
-    directory: '/'
+    directory: "/"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
