@@ -17,12 +17,15 @@
     "clean": "npx rimraf \"lib/**/*.js\" \"lib/**/*.map\" \"lib/**/*.d.ts\" \"test/**/*.js\" \"test/**/*.map\" \"test/**/*.d.ts\"",
     "lint": "eslint --ext .ts lib test",
     "lint:fix": "npm run lint -- --fix",
-    "build": "rollup -c",
-    "build:tsc": "tsc -b",
+    "prebuild": "npm run clean",
+    "build": "npm run build:mjs && npm run build:cjs",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:mjs": "tsc -p tsconfig.mjs.json",
     "unit": "tap",
     "test": "npm run lint && npm run unit",
-    "coverage": "tap --coverage --coverage-report=lcovonly",
-    "prepublishOnly": "npm run build"
+    "coverage": "tap --coverage-report=lcovonly",
+    "prepublishOnly": "npm run build",
+    "postpublish": "npm run clean"
   },
   "publishConfig": {
     "access": "public",
@@ -40,9 +43,10 @@
     "formidable": "^1.2.2"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.2.1",
-    "@types/tap": "^15.0.5",
+    "@types/node": "^17.0.40",
+    "@types/tap": "^15.0.7",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.0",
     "eslint": "^7.12.1",
     "eslint-config-standard-with-typescript": "^21.0.1",
     "eslint-plugin-import": "^2.22.1",
@@ -52,7 +56,6 @@
     "fastify-swagger": "^5.0.0",
     "form-data": "^4.0.0",
     "prettier": "^2.3.2",
-    "rollup": "^2.53.1",
     "tap": "^16.0.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.3.5",
