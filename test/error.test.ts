@@ -52,7 +52,7 @@ t.test('error', function (t) {
       })
     })
 
-    await fastify.listen(0)
+    await fastify.listen({ port: 0 })
 
     const form = new FormData()
     form.append('foo', 'bar')

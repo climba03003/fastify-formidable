@@ -138,6 +138,7 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
   }
 }
 
+// we do not require this function anymore but we keep it
 // we treat ajv to any because we do not want to deal with the ajv@6 and ajv@8 typing problem
 export const ajvBinaryFormat = function (ajv: any): void {
   ajv.addFormat('binary', {
@@ -149,7 +150,7 @@ export const ajvBinaryFormat = function (ajv: any): void {
   })
 }
 export const FastifyFormidable = FastifyPlugin(plugin, {
-  fastify: '3.x',
+  fastify: '4.x',
   name: 'fastify-formidable',
   dependencies: []
 })

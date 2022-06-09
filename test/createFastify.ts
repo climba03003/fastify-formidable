@@ -20,7 +20,7 @@ export async function createFastify (t: Tap.Test, options: FastifyFormidableOpti
     })
   })
 
-  await fastify.listen(0)
+  await fastify.listen({ port: 0 })
 
   t.teardown(fastify.close)
 
@@ -48,7 +48,7 @@ export async function createIntegrationFastify (t: Tap.Test, options: FastifyFor
     })
   })
 
-  await fastify.listen(0)
+  await fastify.listen({ port: 0 })
 
   t.teardown(fastify.close)
 
