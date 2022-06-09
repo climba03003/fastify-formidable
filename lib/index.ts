@@ -98,7 +98,7 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
   }
 
   if (options.addContentTypeParser === true) {
-    fastify.addContentTypeParser('multipart', async function (request: FastifyRequest) {
+    fastify.addContentTypeParser('multipart', async function (request: FastifyRequest, _payload: any) {
       request[kIsMultipart] = true
       const parse = buildRequestParser(formidable)
       const { body, files } = await parse(request)
@@ -125,7 +125,7 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
 
   if (options.removeFilesFromBody === true && (options.addHooks === true || options.addContentTypeParser === true)) {
     // we only remove after validation
-    fastify.addHook('preHandler', function (request, reply, done) {
+    fastify.addHook('preHandler', function (request, _reply, done) {
       if (request.files !== null) {
         const keys = Object.keys(request.files)
         keys.forEach(function (key) {

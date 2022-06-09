@@ -1,19 +1,23 @@
-import * as stream from 'stream'
-import undici from 'undici'
-import * as util from 'util'
+import undici, { Agent } from 'undici'
 import FormData = require('form-data')
-const pump = util.promisify(stream.pipeline)
 
 async function resolve (source: any): Promise<string> {
-  let data = ''
-  await pump(source, new stream.Transform({
-    write (chunk: Buffer, _, done) {
+  return await new Promise(function (resolve) {
+    let data = ''
+    source.on('data', function (chunk: Buffer) {
       data += chunk.toString()
-      done()
-    }
-  }))
-  return data
+    })
+    source.once('end', function () {
+      resolve(data)
+    })
+    source.resume()
+  })
 }
+
+const dispatcher = new Agent({
+  keepAliveTimeout: 10,
+  keepAliveMaxTimeout: 10
+})
 
 export async function request (url: string, formData: FormData): Promise<{ status: number, body: string, json: () => any }> {
   const requestBody = await resolve(formData)
@@ -21,7 +25,8 @@ export async function request (url: string, formData: FormData): Promise<{ statu
   const response = await undici.request(url, {
     method: 'POST',
     body: requestBody,
-    headers: formData.getHeaders()
+    headers: formData.getHeaders(),
+    dispatcher
   })
 
   const responseBody = await resolve(response.body)
@@ -41,7 +46,8 @@ export async function requestJSON (url: string, json: any): Promise<{ status: nu
     body: JSON.stringify(json),
     headers: {
       'content-type': 'application/json'
-    }
+    },
+    dispatcher
   })
 
   const responseBody = await resolve(response.body)
