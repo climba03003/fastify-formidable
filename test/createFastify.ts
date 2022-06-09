@@ -1,5 +1,5 @@
+import fastifySwagger from '@fastify/swagger'
 import Fastify, { FastifyInstance } from 'fastify'
-import fastifySwagger from 'fastify-swagger'
 import { Options } from 'formidable'
 import FastifyFormidable, { ajvBinaryFormat, FastifyFormidableOptions } from '../lib'
 
