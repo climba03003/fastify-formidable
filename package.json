@@ -38,7 +38,7 @@
   "author": "KaKa",
   "license": "GPL-3.0",
   "dependencies": {
-    "@types/formidable": "^1.2.3",
+    "@types/formidable": "^2.0.5",
     "fastify-plugin": "^4.0.0",
     "formidable": "^1.2.2"
   },
