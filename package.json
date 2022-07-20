@@ -40,7 +40,7 @@
   "dependencies": {
     "@types/formidable": "^2.0.5",
     "fastify-plugin": "^4.0.0",
-    "formidable": "^2.0.0"
+    "formidable": "^3.2.4"
   },
   "devDependencies": {
     "@fastify/swagger": "^7.0.0",
