@@ -58,6 +58,6 @@ t.test('warning', function (t) {
     t.equal(json.body.foo, 'bar')
     t.notOk(json.body.file)
     t.ok(json.files.file)
-    t.equal(json.files.file.name, 'package.json')
+    t.equal(json.files.file.originalFilename, 'package.json')
   })
 })

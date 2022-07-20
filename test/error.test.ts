@@ -36,18 +36,19 @@ t.test('error', function (t) {
     t.teardown(fastify.close)
 
     const formidable = new IncomingForm()
+    // @ts-expect-error
     formidable.parse = function (_, callback: Function) {
       callback(new Error('parse error'))
     }
 
     await fastify.register(FastifyFormidable, {
-      formidable: formidable as any
+      formidable
     })
 
     fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
       const body = await request.parseMultipart()
       return await reply.code(200).send({
-        body: body,
+        body,
         files: request.files
       })
     })

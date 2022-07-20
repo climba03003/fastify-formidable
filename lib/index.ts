@@ -1,7 +1,8 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import FastifyPlugin from 'fastify-plugin'
-import { Fields, File, Files, IncomingForm, Options } from 'formidable'
-import Formidable from 'formidable/Formidable'
+import type { Fields, File, Files, Options } from 'formidable'
+import { IncomingForm } from 'formidable'
+import type Formidable from 'formidable/Formidable'
 import * as fs from 'fs'
 import { IncomingMessage } from 'http'
 export const kIsMultipart = Symbol.for('[FastifyMultipart.isMultipart]')
@@ -11,7 +12,7 @@ export const kFileSavedPaths = Symbol.for('[FastifyMultipart.fileSavedPaths]')
 declare module 'fastify' {
   interface FastifyRequest {
     files: Files | null
-    parseMultipart: <Payload = Fields>(this: FastifyRequest, options?: Options) => Promise<Payload>
+    parseMultipart: <Payload = Fields>(this: FastifyRequest, options?: Formidable | Options) => Promise<Payload>
     [kIsMultipart]: boolean
     [kIsMultipartParsed]: boolean
     [kFileSavedPaths]: string[]
@@ -22,7 +23,7 @@ export interface FastifyFormidableOptions {
   addContentTypeParser?: boolean
   addHooks?: boolean
   removeFilesFromBody?: boolean
-  formidable?: Options
+  formidable?: Formidable | Options
 }
 
 function promisify (func: Function): (request: IncomingMessage) => Promise<{ fields: Fields, files: Files }> {
@@ -36,6 +37,11 @@ function promisify (func: Function): (request: IncomingMessage) => Promise<{ fie
   }
 }
 
+function buildIncomingForm (options?: Formidable | Options): Formidable {
+  if (options instanceof IncomingForm) return options
+  return new IncomingForm(options)
+}
+
 function buildRequestParser (formidable: Formidable): (request: FastifyRequest, options?: Pick<FastifyFormidableOptions, 'removeFilesFromBody'>) => Promise<{ body: Fields, files: Files }> {
   const parse = promisify(formidable.parse.bind(formidable))
   return async function (request: FastifyRequest, options?: Pick<FastifyFormidableOptions, 'removeFilesFromBody'>): Promise<{ body: Fields, files: Files }> {
@@ -47,15 +53,20 @@ function buildRequestParser (formidable: Formidable): (request: FastifyRequest, 
     request[kFileSavedPaths] = []
 
     const body = Object.assign({}, fields)
-    Object.keys(files).forEach(function (key) {
-      const paths = Array.isArray(files[key])
-        ? (files[key] as File[]).map(function (file) {
-            return file.path
-          })
-        : (files[key] as File).path
-      if (options?.removeFilesFromBody !== true) (body as any)[key] = paths
-      request[kFileSavedPaths].push(...paths)
-    })
+    for (const key of Object.keys(files)) {
+      let paths: string | string[]
+      if (Array.isArray(files[key])) {
+        paths = []
+        for (const file of files[key] as File[]) {
+          paths.push(file.filepath)
+          request[kFileSavedPaths].push(file.filepath)
+        }
+      } else {
+        paths = (files[key] as File).filepath
+        request[kFileSavedPaths].push(paths)
+      }
+      if (options?.removeFilesFromBody !== true) (body)[key] = paths
+    }
 
     request[kIsMultipartParsed] = true
     return { body, files }
@@ -64,26 +75,22 @@ function buildRequestParser (formidable: Formidable): (request: FastifyRequest, 
 
 const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fastify, options) {
   // create upload folder when not exist
-  if (typeof options.formidable?.uploadDir === 'string') {
-    await fs.promises.mkdir(options.formidable.uploadDir, { recursive: true })
+  if (typeof (options.formidable as Options)?.uploadDir === 'string') {
+    await fs.promises.mkdir((options.formidable as Options).uploadDir as string, { recursive: true })
   }
 
-  const formidable = options.formidable instanceof IncomingForm ? options.formidable : new IncomingForm(options.formidable)
+  const formidable = buildIncomingForm(options.formidable)
 
   fastify.decorateRequest(kIsMultipart, false)
   fastify.decorateRequest(kIsMultipartParsed, false)
   fastify.decorateRequest(kFileSavedPaths, null)
   fastify.decorateRequest('files', null)
 
-  fastify.decorateRequest('parseMultipart', async function (this: FastifyRequest, decoratorOptions?: Options) {
+  fastify.decorateRequest('parseMultipart', async function (this: FastifyRequest, decoratorOptions?: Formidable | Options) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const request = this
 
-    let requestFormidable = formidable
-
-    if (typeof decoratorOptions === 'object' && decoratorOptions !== null && !Array.isArray(decoratorOptions)) {
-      requestFormidable = new IncomingForm(decoratorOptions)
-    }
+    const requestFormidable = buildIncomingForm(decoratorOptions ?? formidable)
 
     const parser = buildRequestParser(requestFormidable)
     const { body, files } = await parser(request, { removeFilesFromBody: options.removeFilesFromBody })
@@ -137,6 +144,8 @@ const plugin: FastifyPluginAsync<FastifyFormidableOptions> = async function (fas
     })
   }
 }
+
+export type { Fields, File, Files } from 'formidable'
 
 // we do not require this function anymore but we keep it
 // we treat ajv to any because we do not want to deal with the ajv@6 and ajv@8 typing problem

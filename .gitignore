@@ -122,6 +122,7 @@ dist
 *.d.ts
 
 # Others
+pnpm-lock.yaml
 yarn.lock
 !jest.config.js
 !rollup.config.js

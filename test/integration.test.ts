@@ -36,9 +36,9 @@ t.test('integration', function (t) {
     const json = await response.json()
 
     t.equal(json.body.foo, 'bar')
-    t.equal(/upload_/.test(json.body.file), true)
+    t.equal(/[0-9a-f]{25}/.test(json.body.file), true)
     t.ok(json.files.file)
-    t.equal(json.files.file.name, 'package.json')
+    t.equal(json.files.file.originalFilename, 'package.json')
   })
 
   t.test('multiple files', async function (t) {
@@ -68,7 +68,7 @@ t.test('integration', function (t) {
     t.equal(json.body.foo, 'bar')
     t.equal(Array.isArray(json.body.file), true)
     t.ok(json.files.file)
-    t.equal(json.files.file[0].name, 'package.json')
-    t.equal(json.files.file[1].name, 'package.json')
+    t.equal(json.files.file[0].originalFilename, 'package.json')
+    t.equal(json.files.file[1].originalFilename, 'package.json')
   })
 })

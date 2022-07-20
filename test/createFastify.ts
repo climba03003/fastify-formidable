@@ -39,7 +39,7 @@ export async function createIntegrationFastify (t: Tap.Test, options: FastifyFor
   await fastify.register(fastifySwagger)
 
   fastify.post<{ Body: { foo: String, file: string } }>('/', {
-    schema: schema
+    schema
   }, async function (request, reply) {
     if (inline) await request.parseMultipart()
     return await reply.code(200).send({

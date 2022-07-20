@@ -1,93 +1,15 @@
 name: Continuous Integration
+
 on:
   push:
     paths-ignore:
-      - "docs/**"
-      - "*.md"
+      - 'docs/**'
+      - '*.md'
   pull_request:
     paths-ignore:
-      - "docs/**"
-      - "*.md"
-
-env:
-  CI: true
-  COVERALLS: 0
+      - 'docs/**'
+      - '*.md'
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    outputs:
-      COVERALLS: ${{ steps.coveralls-trigger.outputs.COVERALLS_TRIGGER }}
-
-    strategy:
-      matrix:
-        # Maintenance and active LTS
-        node-version: [14, 16, 18]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-    name: Node ${{ matrix.node-version }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Use Node.js
-        id: setup_node
-        uses: actions/setup-node@v3.0.0
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install Dependencies
-        id: install
-        run: npm install --ignore-scripts
-
-      - name: Check licenses
-        id: license_check
-        run: |
-          npm run license-checker --if-present
-      # Unit and lint tests
-      - name: Tests
-        id: test
-        run: npm run test
-
-      - name: coverage
-        id: coverage
-        run: npm run coverage
-
-      - name: Coveralls Parallel
-        id: coveralls-parallel
-        continue-on-error: true
-        uses: coverallsapp/github-action@1.1.3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel: true
-          flag-name: run-${{ matrix.node-version }}-${{ matrix.os }}
-
-      - name: Should Trigger coverallsapp/github-action@1.1.3
-        id: coveralls-trigger
-        # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#steps-context
-        # when continue-on-error failed, outcome is failure and conclusion is success
-        if: steps.coveralls-parallel.conclusion == 'success' && steps.coveralls-parallel.outcome != 'success'
-        run: |
-          echo "::set-output name=COVERALLS_TRIGGER::failure"
-
-  coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    if: needs.test.outputs.COVERALLS != 'failure'
-    steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@1.1.3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
-
-  automerge:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: fastify/github-action-merge-dependabot@v3
-        if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request' }}
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+    uses: climba03003/workflows/.github/workflows/ci-general.yml@v1
