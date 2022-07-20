@@ -102,7 +102,7 @@ t.test('removeFilesFromBody', function (t) {
     fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
       const body = await request.parseMultipart()
       return await reply.code(200).send({
-        body: body,
+        body,
         files: request.files
       })
     })
