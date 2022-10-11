@@ -43,7 +43,7 @@
     "formidable": "^2.0.0"
   },
   "devDependencies": {
-    "@fastify/swagger": "^7.0.0",
+    "@fastify/swagger": "^8.0.0",
     "@types/node": "^18.0.0",
     "@types/tap": "^15.0.7",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
