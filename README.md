@@ -18,7 +18,7 @@ yarn add fastify-formidable
 ## Usage
 
 ```ts
-import FastifyFormidable, { kFileSavedPaths, kFileSavedPaths, kIsMultipartParsed } from 'fastify-formidable'
+import FastifyFormidable, { kFileSavedPaths, kIsMultipartParsed } from 'fastify-formidable'
 
 fastify.register(FastifyFormidable)
 
