@@ -1,13 +1,17 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import FastifyPlugin from 'fastify-plugin'
 import type { Fields, File, Files, Options } from 'formidable'
-import { IncomingForm } from 'formidable'
+// Since, formidable is CommonJS module
+// It's exportation do not match the syntax of ESM named export
+// We need to use namespace and property export in this case
+import FormidableNamespace from 'formidable'
 import type Formidable from 'formidable/Formidable'
 import * as fs from 'fs'
 import { IncomingMessage } from 'http'
 export const kIsMultipart = Symbol.for('[FastifyMultipart.isMultipart]')
 export const kIsMultipartParsed = Symbol.for('[FastifyMultipart.isMultipartParsed]')
 export const kFileSavedPaths = Symbol.for('[FastifyMultipart.fileSavedPaths]')
+const { IncomingForm } = FormidableNamespace
 
 declare module 'fastify' {
   interface FastifyRequest {
