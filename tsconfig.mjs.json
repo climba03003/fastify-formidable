@@ -4,5 +4,8 @@
     "module": "ESNext",
     "outDir": "lib/mjs"
   },
-  "include": ["lib/**/*"]
+  "include": ["lib/**/*"],
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
 }
