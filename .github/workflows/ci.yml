@@ -12,4 +12,4 @@ on:
 
 jobs:
   test:
-    uses: climba03003/workflows/.github/workflows/ci-general.yml@v1
+    uses: climba03003/workflows/.github/workflows/ci-general.yml@v2
