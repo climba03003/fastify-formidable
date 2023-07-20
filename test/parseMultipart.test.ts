@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { AddressInfo } from 'net'
+import { type AddressInfo } from 'net'
 import * as path from 'path'
 import t from 'tap'
 import { createFastify } from './createFastify'

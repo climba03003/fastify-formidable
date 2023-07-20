@@ -1,7 +1,7 @@
 import Fastify from 'fastify'
 import { IncomingForm } from 'formidable'
 import * as fs from 'fs'
-import { AddressInfo } from 'net'
+import { type AddressInfo } from 'net'
 import * as path from 'path'
 import t from 'tap'
 import FastifyFormidable from '../lib'
@@ -36,8 +36,7 @@ t.test('error', function (t) {
     t.teardown(fastify.close)
 
     const formidable = new IncomingForm()
-    // @ts-expect-error
-    formidable.parse = function (_, callback: Function) {
+    formidable.parse = function (_, callback: (err: any) => void) {
       callback(new Error('parse error'))
     }
 
@@ -45,7 +44,7 @@ t.test('error', function (t) {
       formidable
     })
 
-    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+    fastify.post<{ Body: { foo: string, file: string } }>('/', async function (request, reply) {
       const body = await request.parseMultipart()
       return await reply.code(200).send({
         body,

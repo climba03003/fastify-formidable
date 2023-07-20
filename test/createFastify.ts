@@ -1,7 +1,7 @@
 import fastifySwagger from '@fastify/swagger'
-import Fastify, { FastifyInstance } from 'fastify'
-import { Options } from 'formidable'
-import FastifyFormidable, { ajvBinaryFormat, FastifyFormidableOptions } from '../lib'
+import Fastify, { type FastifyInstance } from 'fastify'
+import { type Options } from 'formidable'
+import FastifyFormidable, { ajvBinaryFormat, type FastifyFormidableOptions } from '../lib'
 
 // reduce keep alive to prevent `undici` keep the socket open
 export const fastifyOptions = { keepAliveTimeout: 100 }
@@ -11,7 +11,7 @@ export async function createFastify (t: Tap.Test, options: FastifyFormidableOpti
 
   await fastify.register(FastifyFormidable, options)
 
-  fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+  fastify.post<{ Body: { foo: string, file: string } }>('/', async function (request, reply) {
     if (inline === true) await request.parseMultipart()
     if (typeof inline === 'object') await request.parseMultipart(inline)
     return await reply.code(200).send({
@@ -38,7 +38,7 @@ export async function createIntegrationFastify (t: Tap.Test, options: FastifyFor
   await fastify.register(FastifyFormidable, options)
   await fastify.register(fastifySwagger)
 
-  fastify.post<{ Body: { foo: String, file: string } }>('/', {
+  fastify.post<{ Body: { foo: string, file: string } }>('/', {
     schema
   }, async function (request, reply) {
     if (inline) await request.parseMultipart()

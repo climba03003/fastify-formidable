@@ -1,6 +1,6 @@
 import Fastify from 'fastify'
 import * as fs from 'fs'
-import { AddressInfo } from 'net'
+import { type AddressInfo } from 'net'
 import * as path from 'path'
 import t from 'tap'
 import FastifyFormidable from '../lib'
@@ -26,7 +26,7 @@ t.test('warning', function (t) {
       removeFilesFromBody: true
     })
 
-    fastify.post<{ Body: { foo: String, file: string } }>('/', {
+    fastify.post<{ Body: { foo: string, file: string } }>('/', {
       onRequest (request, _, done) {
         request.log = {
           warn (msg: string) {

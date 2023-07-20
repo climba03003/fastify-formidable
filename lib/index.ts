@@ -1,4 +1,4 @@
-import { FastifyPluginAsync, FastifyRequest } from 'fastify'
+import { type FastifyPluginAsync, type FastifyRequest } from 'fastify'
 import FastifyPlugin from 'fastify-plugin'
 import type { Fields, File, Files, Options } from 'formidable'
 // Since, formidable is CommonJS module
@@ -7,7 +7,7 @@ import type { Fields, File, Files, Options } from 'formidable'
 import FormidableNamespace from 'formidable'
 import type Formidable from 'formidable/Formidable'
 import * as fs from 'fs'
-import { IncomingMessage } from 'http'
+import { type IncomingMessage } from 'http'
 export const kIsMultipart = Symbol.for('[FastifyMultipart.isMultipart]')
 export const kIsMultipartParsed = Symbol.for('[FastifyMultipart.isMultipartParsed]')
 export const kFileSavedPaths = Symbol.for('[FastifyMultipart.fileSavedPaths]')
@@ -30,7 +30,7 @@ export interface FastifyFormidableOptions {
   formidable?: Formidable | Options
 }
 
-function promisify (func: Function): (request: IncomingMessage) => Promise<{ fields: Fields, files: Files }> {
+function promisify (func: (request: IncomingMessage, callback: (err: any, fields: Fields, files: Files) => void) => void): (request: IncomingMessage) => Promise<{ fields: Fields, files: Files }> {
   return async function (request: IncomingMessage): Promise<{ fields: Fields, files: Files }> {
     return await new Promise(function (resolve, reject) {
       func(request, function (err: any, fields: Fields, files: Files) {

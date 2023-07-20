@@ -1,6 +1,6 @@
 import Fastify from 'fastify'
 import * as fs from 'fs'
-import { AddressInfo } from 'net'
+import { type AddressInfo } from 'net'
 import * as path from 'path'
 import t from 'tap'
 import FastifyFormidable from '../lib'
@@ -26,7 +26,7 @@ t.test('removeFilesFromBody', function (t) {
       removeFilesFromBody: true
     })
 
-    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+    fastify.post<{ Body: { foo: string, file: string } }>('/', async function (request, reply) {
       return await reply.code(200).send({
         body: request.body,
         files: request.files
@@ -63,7 +63,7 @@ t.test('removeFilesFromBody', function (t) {
       removeFilesFromBody: true
     })
 
-    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+    fastify.post<{ Body: { foo: string, file: string } }>('/', async function (request, reply) {
       return await reply.code(200).send({
         body: request.body,
         files: request.files
@@ -99,7 +99,7 @@ t.test('removeFilesFromBody', function (t) {
       removeFilesFromBody: true
     })
 
-    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+    fastify.post<{ Body: { foo: string, file: string } }>('/', async function (request, reply) {
       const body = await request.parseMultipart()
       return await reply.code(200).send({
         body,
@@ -137,7 +137,7 @@ t.test('removeFilesFromBody', function (t) {
       removeFilesFromBody: true
     })
 
-    fastify.post<{ Body: { foo: String, file: string } }>('/', async function (request, reply) {
+    fastify.post<{ Body: { foo: string, file: string } }>('/', async function (request, reply) {
       return await reply.code(200).send({
         body: request.body,
         files: request.files
