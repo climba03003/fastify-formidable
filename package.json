@@ -59,7 +59,7 @@
     "tap": "^16.3.7",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.7",
-    "typescript": "~5.1.6",
+    "typescript": "~5.2.2",
     "undici": "^5.22.1"
   }
 }
